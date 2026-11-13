@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>우리 반 허브</title>
+<style>
+:root{--ink:#2b2d42;--sub:#6b6f85;--card:rgba(255,255,255,.75);--line:rgba(0,0,0,.08);--ac:#6c8cff;--ac2:#ff7eb6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#eef0ff;--sub:#a9adc7;--card:rgba(30,32,52,.75);--line:rgba(255,255,255,.12)}}
+:root[data-theme="dark"]{--ink:#eef0ff;--sub:#a9adc7;--card:rgba(30,32,52,.75);--line:rgba(255,255,255,.12)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif;color:var(--ink);min-height:100vh;
+  background: linear-gradient(135deg, #ffe3f1, #e0f0ff, #e4ffe9);
+  background-attachment: fixed;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background:linear-gradient(135deg,#2a1830,#182640,#173226);background-attachment:fixed}}
+:root[data-theme="dark"] body{background:linear-gradient(135deg,#2a1830,#182640,#173226);background-attachment:fixed}
+.wrap{max-width:900px;margin:0 auto;padding:20px 16px 60px}
+h1{margin:6px 0 4px;font-size:28px}h2{margin:0 0 12px}
+.sub{color:var(--sub);margin:0 0 18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;cursor:pointer;backdrop-filter:blur(6px);transition:transform .15s}
+.tile:hover{transform:translateY(-3px)}
+.tile b{display:block;font-size:16px;margin:6px 0 2px}.tile span{font-size:13px;color:var(--sub)}.tile i{font-style:normal;font-size:28px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px;backdrop-filter:blur(6px)}
+a.back{display:inline-block;margin-bottom:10px;color:var(--ink);text-decoration:none;font-weight:600}
+input,textarea,select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;max-width:100%}
+textarea{width:100%;min-height:70px}
+button{font:inherit;border:0;border-radius:10px;padding:8px 14px;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;font-weight:600;cursor:pointer}
+button.g{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.li small{color:var(--sub)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.seats{display:grid;gap:8px}.seat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 4px;text-align:center;font-size:14px}
+.front{text-align:center;padding:6px;border-radius:10px;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;margin-bottom:8px;font-weight:600}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%}td,th{border:1px solid var(--line);padding:4px;text-align:center}
+td input{width:100%;min-width:64px;border:0;text-align:center;background:transparent}
+.bar{height:10px;border-radius:6px;background:linear-gradient(90deg,var(--ac),var(--ac2));margin-top:4px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.day{min-height:62px;border:1px solid var(--line);border-radius:8px;padding:3px;font-size:12px;background:var(--card);cursor:pointer;overflow:hidden}
+.day.t{outline:2px solid var(--ac2)}
+.ph{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}.ph img{width:100%;height:120px;object-fit:cover;border-radius:10px}
+.opt{display:block;width:100%;text-align:left;margin:6px 0}
+.ok{background:#3ec28f!important;color:#fff}.no{background:#ef6b6b!important;color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const $=s=>document.querySelector(s);
+const ld=(k,d)=>{try{const v=localStorage.getItem('cls_'+k);return v?JSON.parse(v):d}catch(e){return d}};
+const sv=(k,v)=>{try{localStorage.setItem('cls_'+k,JSON.stringify(v))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const val=id=>($('#'+id)||{}).value||'';
+const roster=()=>ld('roster',[]);
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const MEM={photos:[],q:{i:0,s:0,sel:null},cal:new Date()};
+const S=[
+['notice','📢','알림장','공지·숙제·준비물'],
+['roles','🧹','1인 1역·당번','랜덤 배정'],
+['seats','🪑','자리 바꾸기','랜덤 자리 배치'],
+['time','⏰','시간표·D-day','수업과 남은 날'],
+['photo','📷','사진첩','행사별 추억'],
+['vote','🗳️','투표·건의함','회의 안건'],
+['points','⭐','칭찬 포인트','랭킹 보드'],
+['quiz','🎯','학급 퀴즈','복습 게임'],
+['cal','📅','학급 캘린더','생일·시험·행사']];
+const A={};
+function nav(){go()}
+function go(){const id=(location.hash||'').slice(1);const v=V[id];const el=$('#app');
+ el.innerHTML=v?'<a class="back" href="#home">← 홈으로</a>'+v():V.home();window.scrollTo(0,0)}
+function re(){const id=(location.hash||'').slice(1);const y=scrollY;go();scrollTo(0,y)}
+const V={};
+V.home=()=>{const r=roster();return `<h1>🏫 우리 반 허브</h1><p class="sub">알림장부터 퀴즈까지, 학급 생활을 한곳에서.</p>
+<div class="grid">${S.map(s=>`<a class="tile" href="#${s[0]}" style="text-decoration:none;color:inherit"><i>${s[1]}</i><b>${s[2]}</b><span>${s[3]}</span></a>`).join('')}</div>
+<div class="card" style="margin-top:16px"><h2>👥 학급 명단</h2><p class="sub">여기에 입력하면 당번·자리·포인트에서 같이 써요. (쉼표 또는 줄바꿈)</p>
+<textarea id="ros">${esc(r.join(', '))}</textarea><div class="row"><button onclick="A.ros()">저장</button><span class="sub" style="margin:0">${r.length}명</span></div></div>`};
+A.ros=()=>{sv('roster',val('ros').split(/[,\n]/).map(s=>s.trim()).filter(Boolean));re()};
+
+// 알림장
+V.notice=()=>{const n=ld('notice',[]);return `<div class="card"><h2>📢 알림장</h2>
+<div class="row"><select id="nt"><option>공지</option><option>숙제</option><option>준비물</option><option>시험</option></select><input id="nx" placeholder="내용" style="flex:1;min-width:160px"><button onclick="A.nadd()">추가</button></div>
+${n.length?n.map((x,i)=>`<div class="li"><div><b>[${esc(x.t)}]</b> ${esc(x.x)}<br><small>${x.d}</small></div><button class="g" onclick="A.ndel(${i})">삭제</button></div>`).join(''):'<p class="sub">아직 알림이 없어요.</p>'}</div>`};
+A.nadd=()=>{const x=val('nx').trim();if(!x)return;const n=ld('notice',[]);n.unshift({t:val('nt'),x,d:today()});sv('notice',n);re()};
+A.ndel=i=>{const n=ld('notice',[]);n.splice(i,1);sv('notice',n);re()};
+
+// 역할
+V.roles=()=>{const ro=ld('roles',['칠판 지우기','우유 당번','창문 열기','쓰레기통 비우기']);const res=ld('rolesRes',[]);
+return `<div class="card"><h2>🧹 1인 1역·당번 배정</h2><p class="sub">역할을 한 줄에 하나씩 적고 배정을 눌러요. 명단은 홈에서 입력해요. (현재 ${roster().length}명)</p>
+<textarea id="rl">${esc(ro.join('\n'))}</textarea><div class="row"><button onclick="A.assign()">🎲 랜덤 배정</button></div>
+${res.map(r=>`<div class="li"><b>${esc(r[0])}</b><span>${esc(r[1])}</span></div>`).join('')}</div>`};
+A.assign=()=>{const ro=val('rl').split('\n').map(s=>s.trim()).filter(Boolean);sv('roles',ro);const r=shuf(roster());
+ if(!r.length){alert('홈에서 명단을 먼저 입력해 주세요');return}
+ sv('rolesRes',ro.map((x,i)=>[x,r[i%r.length]]));re()};
+
+// 자리
+V.seats=()=>{const s=ld('seatRes',null);const c=ld('seatCols',6);
+return `<div class="card"><h2>🪑 자리 바꾸기</h2><div class="row"><label>한 줄 인원 <input id="sc" type="number" min="2" max="10" value="${c}" style="width:64px"></label></div>
+<p class="sub" style="margin:4px 0">앞자리 고정(쉼표로 구분, 앞쪽부터 배치)</p><input id="sf" value="${esc(ld('seatFix',''))}" style="width:100%">
+<div class="row"><button onclick="A.seat()">🎲 자리 섞기</button></div>
+${s?`<div class="front">📺 칠판</div><div class="seats" style="grid-template-columns:repeat(${c},1fr)">${s.map(n=>`<div class="seat">${esc(n)}</div>`).join('')}</div>`:''}</div>`};
+A.seat=()=>{const r=roster();if(!r.length){alert('홈에서 명단을 먼저 입력해 주세요');return}
+ const fx=val('sf').split(',').map(s=>s.trim()).filter(x=>r.includes(x));sv('seatFix',val('sf'));sv('seatCols',+val('sc')||6);
+ sv('seatRes',[...fx,...shuf(r.filter(x=>!fx.includes(x)))]);re()};
+
+// 시간표 + D-day
+V.time=()=>{const t=ld('tt',{});const dd=ld('dd',[]);const D=['월','화','수','목','금'];const now=new Date(today());
+return `<div class="card"><h2>⏰ 시간표</h2><div class="scroll"><table><tr><th></th>${D.map(d=>`<th>${d}</th>`).join('')}</tr>
+${[1,2,3,4,5,6].map(p=>`<tr><th>${p}</th>${D.map((d,i)=>`<td><input data-k="${i}-${p}" value="${esc(t[i+'-'+p]||'')}" onchange="A.tt(this)"></td>`).join('')}</tr>`).join('')}</table></div></div>
+<div class="card"><h2>📆 D-day</h2><div class="row"><input id="dn" placeholder="이름 (예: 체험학습)"><input id="dd" type="date"><button onclick="A.dadd()">추가</button></div>
+${dd.map((x,i)=>{const n=Math.round((new Date(x.d)-now)/864e5);return `<div class="li"><span>${esc(x.n)} <small>${x.d}</small></span><span><b>${n===0?'D-DAY':n>0?'D-'+n:'D+'+(-n)}</b> <button class="g" onclick="A.ddel(${i})">✕</button></span></div>`}).join('')}</div>`};
+A.tt=el=>{const t=ld('tt',{});t[el.dataset.k]=el.value;sv('tt',t)};
+A.dadd=()=>{if(!val('dn')||!val('dd'))return;const d=ld('dd',[]);d.push({n:val('dn'),d:val('dd')});d.sort((a,b)=>a.d<b.d?-1:1);sv('dd',d);re()};
+A.ddel=i=>{const d=ld('dd',[]);d.splice(i,1);sv('dd',d);re()};
+
+// 사진첩
+V.photo=()=>{const g={};MEM.photos.forEach(p=>(g[p.e]=g[p.e]||[]).push(p.u));
+return `<div class="card"><h2>📷 사진첩</h2><p class="sub">사진은 이 화면을 열어둔 동안만 보여요. (새로고침하면 사라져요)</p>
+<div class="row"><input id="pe" placeholder="행사 이름 (예: 체육대회)"><input id="pf" type="file" accept="image/*" multiple><button onclick="A.padd()">올리기</button></div></div>
+${Object.keys(g).map(e=>`<div class="card"><h2>${esc(e)}</h2><div class="ph">${g[e].map(u=>`<img src="${u}" alt="">`).join('')}</div></div>`).join('')}`};
+A.padd=()=>{const f=$('#pf').files;const e=val('pe').trim()||'기타';if(!f.length)return;[...f].forEach(x=>MEM.photos.push({e,u:URL.createObjectURL(x)}));re()};
+
+// 투표/건의
+V.vote=()=>{const p=ld('poll',null);const sg=ld('sug',[]);
+return `<div class="card"><h2>🗳️ 학급 투표</h2>
+${p?`<b>${esc(p.q)}</b>${p.o.map((o,i)=>{const tot=p.v.reduce((a,b)=>a+b,0)||1;return `<div style="margin:8px 0"><div class="li" style="border:0;padding:0"><span>${esc(o)}</span><span>${p.v[i]}표 <button class="g" onclick="A.vt(${i})">투표</button></span></div><div class="bar" style="width:${p.v[i]/tot*100}%"></div></div>`}).join('')}<div class="row"><button class="g" onclick="A.pdel()">투표 끝내기</button></div>`:
+`<input id="pq" placeholder="안건 (예: 소풍 장소)" style="width:100%"><input id="po" placeholder="선택지를 쉼표로 (놀이공원, 박물관)" style="width:100%;margin-top:8px"><div class="row"><button onclick="A.padd2()">투표 만들기</button></div>`}</div>
+<div class="card"><h2>📮 익명 건의함</h2><div class="row"><input id="sx" placeholder="건의사항" style="flex:1;min-width:160px"><button onclick="A.sadd()">보내기</button></div>
+${sg.map((x,i)=>`<div class="li"><span>${esc(x)}</span><button class="g" onclick="A.sdel(${i})">✕</button></div>`).join('')}</div>`};
+A.padd2=()=>{const o=val('po').split(',').map(s=>s.trim()).filter(Boolean);if(!val('pq')||o.length<2)return;sv('poll',{q:val('pq'),o,v:o.map(()=>0)});re()};
+A.vt=i=>{const p=ld('poll');p.v[i]++;sv('poll',p);re()};
+A.pdel=()=>{sv('poll',null);re()};
+A.sadd=()=>{const x=val('sx').trim();if(!x)return;const s=ld('sug',[]);s.unshift(x);sv('sug',s);re()};
+A.sdel=i=>{const s=ld('sug',[]);s.splice(i,1);sv('sug',s);re()};
+
+// 포인트
+V.points=()=>{const r=roster();const p=ld('pts',{});const rk=[...r].sort((a,b)=>(p[b]||0)-(p[a]||0));
+return `<div class="card"><h2>⭐ 칭찬 포인트</h2>${r.length?rk.map((n,i)=>`<div class="li"><span>${i<3?['🥇','🥈','🥉'][i]:i+1+'.'} ${esc(n)}</span><span><b>${p[n]||0}</b> <button onclick="A.pt(${r.indexOf(n)},1)">＋</button> <button class="g" onclick="A.pt(${r.indexOf(n)},-1)">－</button></span></div>`).join('')+`<div class="row"><button class="g" onclick="A.preset()">점수 초기화</button></div>`:'<p class="sub">홈에서 명단을 먼저 입력해 주세요.</p>'}</div>`};
+A.pt=(i,d)=>{const n=roster()[i];const p=ld('pts',{});p[n]=Math.max(0,(p[n]||0)+d);sv('pts',p);re()};
+A.preset=()=>{if(confirm('모든 점수를 0으로 할까요?')){sv('pts',{});re()}};
+
+// 퀴즈
+V.quiz=()=>{const q=ld('quiz',[]);const m=MEM.q;
+let play='';
+if(q.length){if(m.i>=q.length)play=`<h3>끝! ${m.s} / ${q.length}점 🎉</h3><button onclick="A.qreset()">다시 풀기</button>`;
+ else{const c=q[m.i];play=`<b>${m.i+1}. ${esc(c.q)}</b>${c.o.map((o,i)=>`<button class="g opt ${m.sel!==null?(i===c.a?'ok':i===m.sel?'no':''):''}" onclick="A.qans(${i})">${i+1}. ${esc(o)}</button>`).join('')}${m.sel!==null?`<button onclick="A.qnext()">다음 ▶</button>`:''}`}}
+return `<div class="card"><h2>🎯 퀴즈 풀기</h2>${play||'<p class="sub">아래에서 문제를 먼저 만들어 보세요.</p>'}</div>
+<div class="card"><h2>✏️ 문제 만들기</h2><input id="qq" placeholder="문제" style="width:100%"><input id="qo" placeholder="보기를 쉼표로 (O, X 도 가능)" style="width:100%;margin-top:8px">
+<div class="row"><label>정답 번호 <input id="qa" type="number" min="1" value="1" style="width:64px"></label><button onclick="A.qadd()">추가</button></div>
+${q.map((c,i)=>`<div class="li"><span>${esc(c.q)} <small>(정답 ${c.a+1})</small></span><button class="g" onclick="A.qdel(${i})">✕</button></div>`).join('')}</div>`};
+A.qadd=()=>{const o=val('qo').split(',').map(s=>s.trim()).filter(Boolean);const a=(+val('qa'))-1;if(!val('qq')||o.length<2||!(a>=0&&a<o.length)){alert('문제, 보기 2개 이상, 올바른 정답 번호가 필요해요');return}
+ const q=ld('quiz',[]);q.push({q:val('qq'),o,a});sv('quiz',q);re()};
+A.qdel=i=>{const q=ld('quiz',[]);q.splice(i,1);sv('quiz',q);A.qreset()};
+A.qans=i=>{if(MEM.q.sel!==null)return;MEM.q.sel=i;if(i===ld('quiz')[MEM.q.i].a)MEM.q.s++;re()};
+A.qnext=()=>{MEM.q.i++;MEM.q.sel=null;re()};
+A.qreset=()=>{MEM.q={i:0,s:0,sel:null};re()};
+
+// 캘린더
+V.cal=()=>{const d=MEM.cal;const y=d.getFullYear(),m=d.getMonth();const ev=ld('ev',[]);const first=new Date(y,m,1).getDay();const n=new Date(y,m+1,0).getDate();const t=today();
+let cells='';for(let i=0;i<first;i++)cells+='<div></div>';
+for(let k=1;k<=n;k++){const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(k).padStart(2,'0');const e=ev.filter(x=>x.d===ds);
+ cells+=`<div class="day ${ds===t?'t':''}" onclick="A.cday('${ds}')">${k}${e.map(x=>`<div>${x.b?'🎂':'•'} ${esc(x.t)}</div>`).join('')}</div>`}
+return `<div class="card"><h2>📅 ${y}년 ${m+1}월</h2><div class="row"><button class="g" onclick="A.cm(-1)">◀</button><button class="g" onclick="A.cm(1)">▶</button></div>
+<div class="cal">${'일월화수목금토'.split('').map(x=>`<b style="text-align:center">${x}</b>`).join('')}${cells}</div></div>
+<div class="card"><h2>일정 추가</h2><div class="row"><input id="cd" type="date" value="${t}"><input id="ct" placeholder="내용"><label><input id="cb" type="checkbox"> 🎂 생일</label><button onclick="A.cadd()">추가</button></div>
+<p class="sub">날짜를 누르면 그날 일정이 지워져요.</p>${ev.some(x=>x.b&&x.d.slice(5)===t.slice(5))?'<h3>🎉 오늘은 생일이에요! 축하해요! 🎉</h3>':''}</div>`};
+A.cm=n=>{MEM.cal=new Date(MEM.cal.getFullYear(),MEM.cal.getMonth()+n,1);re()};
+A.cadd=()=>{if(!val('cd')||!val('ct'))return;const e=ld('ev',[]);e.push({d:val('cd'),t:val('ct'),b:$('#cb').checked});sv('ev',e);re()};
+A.cday=ds=>{const e=ld('ev',[]);if(e.some(x=>x.d===ds)&&confirm(ds+' 일정을 모두 지울까요?')){sv('ev',e.filter(x=>x.d!==ds));re()}};
+
+addEventListener('hashchange',go);go();
+</script>
+</body>
+</html>
