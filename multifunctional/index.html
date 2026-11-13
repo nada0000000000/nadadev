@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>나의 만능 사이트</title>
+<style>
+  /* 🎨 색 바꾸기 */
+  :root{
+    --배경1:#ffe3f1; --배경2:#e0f0ff; --배경3:#e4ffe9;
+    --학급1:#ff9ec7; --학급2:#ffc27a;
+    --게임1:#7aa7ff; --게임2:#b48cff;
+    --기타1:#4fd6b0; --기타2:#8be36a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#3a3550;line-height:1.6;
+    background:linear-gradient(135deg,var(--배경1),var(--배경2),var(--배경3));background-attachment:fixed}
+  .wrap{max-width:900px;margin:0 auto;padding:40px 18px 80px}
+  h1{text-align:center;font-size:2.4rem;margin:0 0 8px;background:linear-gradient(90deg,#ff7eb3,#7a8cff,#3fd0b0);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .설명{text-align:center;color:#6b6585;margin:0 0 10px;font-size:1.05rem}
+  .줄{border:0;height:4px;border-radius:4px;margin:30px 0;background:linear-gradient(90deg,#ffb3d1,#b3c9ff,#b3f0d9)}
+  .칸 h2{display:inline-block;margin:0 0 16px;padding:6px 18px;font-size:1.2rem;color:#fff;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+  .학급 h2{background:linear-gradient(90deg,var(--학급1),var(--학급2))}
+  .게임 h2{background:linear-gradient(90deg,var(--게임1),var(--게임2))}
+  .기타 h2{background:linear-gradient(90deg,var(--기타1),var(--기타2))}
+  .목록{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+  .목록 a{display:block;text-align:center;padding:18px 10px;background:rgba(255,255,255,.75);backdrop-filter:blur(6px);border:2px solid #fff;border-radius:18px;color:#3a3550;text-decoration:none;font-weight:700;box-shadow:0 6px 16px rgba(120,110,170,.15);transition:transform .15s,box-shadow .15s}
+  .목록 a:hover{transform:translateY(-4px);box-shadow:0 10px 22px rgba(120,110,170,.25)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 1️⃣ 맨 위: 제목과 설명 (글자만 바꾸세요) -->
+  <h1>🌈 나의 만능 사이트</h1>
+  <p class="설명">여기에 사이트 설명을 적으세요!</p>
+
+  <hr class="줄">
+
+  <!-- 2️⃣ 학급 칸
+       href="" 안에는 내가 만든 html 파일 이름을 적으세요. (같은 폴더에 두면 돼요)
+       사이트가 더 생기면 <a> 한 줄을 복사해서 추가하세요. -->
+  <section class="칸 학급">
+    <h2>📚 학급</h2>
+    <div class="목록">
+      <a href="학급.html">학급 사이트</a>
+    </div>
+  </section>
+
+  <hr class="줄">
+
+  <!-- 3️⃣ 게임 칸 -->
+  <section class="칸 게임">
+    <h2>🎮 게임</h2>
+    <div class="목록">
+      <a href="게임.html">게임 사이트</a>
+    </div>
+  </section>
+
+  <hr class="줄">
+
+  <!-- 4️⃣ 기타 칸 -->
+  <section class="칸 기타">
+    <h2>✨ 기타</h2>
+    <div class="목록">
+      <a href="기타.html">기타 사이트</a>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
